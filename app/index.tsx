@@ -1,11 +1,28 @@
+import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Box, ChevronRight, QrCode, Trash, User } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import { Button, H3, ListItem, Separator, View, XStack, YStack } from "tamagui";
 
+import { useSupabase } from "../lib/context/useSupabase";
+import { Tables } from "../lib/types/database-custom";
+
 export default function Inventory() {
   const router = useRouter();
+
+  const { supabase } = useSupabase();
+  const [items, setItems] = useState<Tables<"InventoryItems">[]>([]);
+
+  useEffect(() => {
+    async function fetchItems() {
+      const { data } = await supabase.from("InventoryItems").select("*");
+      if (!data) return;
+      setItems(data);
+    }
+
+    fetchItems();
+  }, []);
 
   return (
     <YStack
@@ -39,8 +56,8 @@ export default function Inventory() {
       </XStack>
 
       <FlatList
-        data={[1, 2, 3, 4, 5]}
-        keyExtractor={(item) => item.toString()}
+        data={items}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Swipeable
             renderRightActions={() => (
@@ -57,8 +74,8 @@ export default function Inventory() {
             <ListItem
               hoverTheme
               pressTheme
-              title={`Item ${item}`}
-              subTitle="Subtitle"
+              title={`${item.reference} - ${item.quantity} unidades`}
+              subTitle={item.container}
               icon={Box}
               iconAfter={ChevronRight}
             />
