@@ -7,7 +7,7 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { TamaguiProvider, Text, Theme } from "tamagui";
+import { Spinner, TamaguiProvider, Theme, YStack } from "tamagui";
 
 import { MySafeAreaView } from "../components/MySafeAreaView";
 import config from "../tamagui.config";
@@ -32,7 +32,24 @@ export default function Layout() {
 
   return (
     <TamaguiProvider config={config}>
-      <Suspense fallback={<Text>Loading...</Text>}>
+      <Suspense
+        fallback={
+          <YStack
+            padding="$3"
+            space="$4"
+            alignItems="center"
+          >
+            <Spinner
+              size="small"
+              color="$green10"
+            />
+            <Spinner
+              size="large"
+              color="$orange10"
+            />
+          </YStack>
+        }
+      >
         <Theme name={colorScheme}>
           <ThemeProvider
             value={colorScheme === "light" ? DefaultTheme : DarkTheme}

@@ -1,90 +1,55 @@
-import { Github, Twitter } from "@tamagui/lucide-icons";
-import { Link, useRouter } from "expo-router";
-import {
-  Button,
-  H1,
-  ListItem,
-  Paragraph,
-  Separator,
-  YGroup,
-  YStack
-} from "tamagui";
+import { Link } from "expo-router";
+import { Button, H1, Input, Paragraph, YStack } from "tamagui";
 
+import Logo from "../components/Logo";
 import { MyStack } from "../components/MyStack";
 
 export default function Home() {
-  const router = useRouter();
-
   return (
     <MyStack>
       <YStack
+        alignItems="flex-start"
         space="$4"
-        maxWidth={600}
       >
-        <H1 textAlign="center">Welcome to Tamagui.</H1>
-        <Paragraph textAlign="center">
-          Here&apos;s a basic starter to show navigating from one screen to
-          another.
-        </Paragraph>
-      </YStack>
+        <YStack space="$4">
+          <Logo />
 
-      <YStack space="$2.5">
-        <Button onPress={() => router.push("/users/testuser")}>
-          Go to user page
-        </Button>
-        <Button onPress={() => router.push("/tabs")}>Go to tabs page</Button>
-      </YStack>
+          <YStack space="$2">
+            <H1 fontWeight={"bold"}>Bienvenido</H1>
+            <Paragraph>
+              Magna Inventory te permite llevar el control del almacén desde tu
+              dispositivo móvil. Inicia sesión para comenzar.
+            </Paragraph>
+          </YStack>
+        </YStack>
 
-      <YStack space="$5">
-        <YGroup
-          bordered
-          separator={<Separator />}
-          theme="green"
+        <YStack
+          width="100%"
+          space="$2"
         >
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://twitter.com/natebirdman"
-              target="_blank"
+          <Input placeholder="Usuario" />
+          <Input placeholder="Contraseña" />
+          <Link
+            asChild
+            href=""
+          >
+            <Paragraph
+              color="$green10"
+              fontWeight="bold"
+              textAlign="right"
             >
-              <ListItem
-                hoverTheme
-                title="Nate"
-                pressTheme
-                icon={Twitter}
-              />
-            </Link>
-          </YGroup.Item>
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://github.com/tamagui/tamagui"
-              target="_blank"
-            >
-              <ListItem
-                hoverTheme
-                pressTheme
-                title="Tamagui"
-                icon={Github}
-              />
-            </Link>
-          </YGroup.Item>
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://github.com/ivopr/tamagui-expo"
-              target="_blank"
-            >
-              <ListItem
-                hoverTheme
-                pressTheme
-                title="This Template"
-                icon={Github}
-              />
-            </Link>
-          </YGroup.Item>
-        </YGroup>
+              ¿Olvidaste tu contraseña?
+            </Paragraph>
+          </Link>
+        </YStack>
       </YStack>
+
+      <Button
+        color="$green10"
+        pressTheme
+      >
+        Iniciar sesión
+      </Button>
     </MyStack>
   );
 }
