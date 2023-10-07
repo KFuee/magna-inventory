@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { ArrowLeft } from "@tamagui/lucide-icons";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
-import { Button, Sheet, Text, View, XStack } from "tamagui";
+import { Button, Text, View, XStack } from "tamagui";
+
+import NewInventoryItemSheet from "../../components/NewInventoryItemSheet";
 
 export default function CodeReader() {
   const router = useRouter();
   const [hasPermission, setHasPermission] = useState(null);
-  const [type, setType] = useState(null);
+
   const [data, setData] = useState(null);
-
-  const [position, setPosition] = useState(0);
   const [open, setOpen] = useState(false);
-
-  const snapPoints = [75];
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -26,7 +24,17 @@ export default function CodeReader() {
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
-    setType(type);
+    if (
+      type !== BarCodeScanner.Constants.BarCodeType.code128 &&
+      type !== BarCodeScanner.Constants.BarCodeType.qr
+    ) {
+      Alert.alert(
+        "Código no válido",
+        "El código escaneado no es un código de barras o QR válido."
+      );
+      return;
+    }
+
     setData(data);
     setOpen(true);
   };
@@ -69,35 +77,11 @@ export default function CodeReader() {
         />
       </View>
 
-      <Sheet
-        forceRemoveScrollEnabled={open}
-        modal={true}
+      <NewInventoryItemSheet
+        data={data}
         open={open}
-        onOpenChange={setOpen}
-        snapPoints={snapPoints}
-        snapPointsMode="percent"
-        dismissOnSnapToBottom
-        position={position}
-        onPositionChange={setPosition}
-        zIndex={100_000}
-        animation="quick"
-      >
-        <Sheet.Overlay
-          animation="lazy"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-        <Sheet.Handle />
-        <Sheet.Frame
-          padding="$4"
-          justifyContent="center"
-          alignItems="center"
-          space="$5"
-        >
-          <Text>{type}</Text>
-          <Text>{data}</Text>
-        </Sheet.Frame>
-      </Sheet>
+        setOpen={setOpen}
+      />
     </>
   );
 }

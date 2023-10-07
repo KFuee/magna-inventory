@@ -5,6 +5,8 @@ import { createClient, EmailOtpType } from "@supabase/supabase-js";
 import { useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
+import { Database } from "../types/database";
+
 import { supabaseKey, supabaseUrl } from "./supabase";
 import { SupabaseContext } from "./SupabaseContext";
 
@@ -50,7 +52,7 @@ type SupabaseProviderProps = {
 export const SupabaseProvider = (props: SupabaseProviderProps) => {
   const [isLoggedIn, setLoggedIn] = React.useState<boolean>(false);
 
-  const supabase = createClient(supabaseUrl, supabaseKey, {
+  const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     auth: {
       storage: ExpoSecureStoreAdapter,
       autoRefreshToken: true,
@@ -108,6 +110,7 @@ export const SupabaseProvider = (props: SupabaseProviderProps) => {
   return (
     <SupabaseContext.Provider
       value={{
+        supabase,
         isLoggedIn,
         signInWithPassword,
         verifyOtp,

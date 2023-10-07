@@ -1,7 +1,10 @@
 import { createContext } from "react";
-import { EmailOtpType } from "@supabase/supabase-js";
+import { EmailOtpType, SupabaseClient } from "@supabase/supabase-js";
+
+import { Database } from "../types/database";
 
 type SupabaseContextProps = {
+  supabase: SupabaseClient<Database> | null;
   isLoggedIn: boolean;
   verifyOtp: (
     email: string,
@@ -15,6 +18,7 @@ type SupabaseContextProps = {
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 export const SupabaseContext = createContext<SupabaseContextProps>({
+  supabase: null,
   isLoggedIn: false,
   verifyOtp: async () => {},
   signInWithPassword: async () => {},
