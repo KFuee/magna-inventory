@@ -1,7 +1,7 @@
 import { styled, YStack } from "tamagui";
 
-export const MyStack = styled(YStack, {
-  name: "MyStack",
+export const MainStack = styled(YStack, {
+  name: "MainStack",
   backgroundColor: "$backgroundStrong",
   flex: 1,
   justifyContent: "space-between",

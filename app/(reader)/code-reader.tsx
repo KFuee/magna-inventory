@@ -3,12 +3,18 @@ import { StyleSheet } from "react-native";
 import { ArrowLeft } from "@tamagui/lucide-icons";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
-import { Button, Text, View, XStack } from "tamagui";
+import { Button, Sheet, Text, View, XStack } from "tamagui";
 
 export default function CodeReader() {
   const router = useRouter();
   const [hasPermission, setHasPermission] = useState(null);
-  const [scanned, setScanned] = useState(false);
+  const [type, setType] = useState(null);
+  const [data, setData] = useState(null);
+
+  const [position, setPosition] = useState(0);
+  const [open, setOpen] = useState(false);
+
+  const snapPoints = [75];
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -20,40 +26,78 @@ export default function CodeReader() {
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    setType(type);
+    setData(data);
+    setOpen(true);
   };
 
   if (hasPermission === null) {
-    return <Text>Requesting for camera permission</Text>;
+    return <Text>Solicitando permisos para acceder a la cámara...</Text>;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return (
+      <Text>
+        No se aceptaron los permisos de la cámara. Por favor, permita el acceso
+        a la cámara desde la configuración de tu dispositivo para poder escanear
+        códigos.
+      </Text>
+    );
   }
 
   return (
-    <View
-      flex={1}
-      backgroundColor="$gray10"
-    >
-      <XStack
-        zIndex={1}
-        padding="$4"
-        width="100%"
-        space="$4"
-        alignItems="center"
+    <>
+      <View
+        flex={1}
+        backgroundColor="$gray10"
       >
-        <Button
-          circular
-          icon={<ArrowLeft size={24} />}
-          onPress={() => router.push("/")}
+        <XStack
+          zIndex={1}
+          padding="$4"
+          width="100%"
+          space="$4"
+          alignItems="center"
+        >
+          <Button
+            circular
+            icon={<ArrowLeft size={24} />}
+            onPress={() => router.push("/")}
+          />
+        </XStack>
+        <BarCodeScanner
+          style={StyleSheet.absoluteFillObject}
+          onBarCodeScanned={open ? undefined : handleBarCodeScanned}
         />
-      </XStack>
-      <BarCodeScanner
-        style={StyleSheet.absoluteFillObject}
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-      />
-      {scanned && <Button onPress={() => setScanned(false)}>Scan again</Button>}
-    </View>
+      </View>
+
+      <Sheet
+        forceRemoveScrollEnabled={open}
+        modal={true}
+        open={open}
+        onOpenChange={setOpen}
+        snapPoints={snapPoints}
+        snapPointsMode="percent"
+        dismissOnSnapToBottom
+        position={position}
+        onPositionChange={setPosition}
+        zIndex={100_000}
+        animation="quick"
+      >
+        <Sheet.Overlay
+          animation="lazy"
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
+        <Sheet.Handle />
+        <Sheet.Frame
+          padding="$4"
+          justifyContent="center"
+          alignItems="center"
+          space="$5"
+        >
+          <Text>{type}</Text>
+          <Text>{data}</Text>
+        </Sheet.Frame>
+      </Sheet>
+    </>
   );
 }

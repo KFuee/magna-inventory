@@ -1,10 +1,10 @@
 import { Spinner } from "tamagui";
 
-import { MyStack } from "./MyStack";
+import { MainStack } from "./MainStack";
 
 export default function LoadingSpinner() {
   return (
-    <MyStack
+    <MainStack
       ai="center"
       jc="center"
     >
@@ -12,6 +12,6 @@ export default function LoadingSpinner() {
         size="large"
         color="$green10"
       />
-    </MyStack>
+    </MainStack>
   );
 }

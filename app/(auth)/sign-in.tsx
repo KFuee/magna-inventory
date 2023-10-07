@@ -6,7 +6,7 @@ import { Button, H1, Input, Paragraph, YStack } from "tamagui";
 import * as z from "zod";
 
 import Logo from "../../components/Logo";
-import { MyStack } from "../../components/MyStack";
+import { MainStack } from "../../components/MainStack";
 import { useSupabase } from "../../lib/context/useSupabase";
 
 const FormSchema = z.object({
@@ -43,7 +43,7 @@ export default function SignIn() {
   }
 
   return (
-    <MyStack>
+    <MainStack>
       <YStack
         alignItems="flex-start"
         space="$4"
@@ -126,6 +126,6 @@ export default function SignIn() {
       >
         Iniciar sesión
       </Button>
-    </MyStack>
+    </MainStack>
   );
 }
