@@ -7,14 +7,16 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { Spinner, TamaguiProvider, Theme, YStack } from "tamagui";
+import { TamaguiProvider, Theme } from "tamagui";
 
+import LoadingSpinner from "../components/LoadingSpinner";
 import { MySafeAreaView } from "../components/MySafeAreaView";
+import { SupabaseProvider } from "../lib/context/SupabaseProvider";
 import config from "../tamagui.config";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function Layout() {
+export default function Root() {
   const colorScheme = useColorScheme();
 
   const [loaded] = useFonts({
@@ -31,39 +33,24 @@ export default function Layout() {
   if (!loaded) return null;
 
   return (
-    <TamaguiProvider config={config}>
-      <Suspense
-        fallback={
-          <YStack
-            padding="$3"
-            space="$4"
-            alignItems="center"
-          >
-            <Spinner
-              size="small"
-              color="$green10"
-            />
-            <Spinner
-              size="large"
-              color="$orange10"
-            />
-          </YStack>
-        }
-      >
-        <Theme name={colorScheme}>
-          <ThemeProvider
-            value={colorScheme === "light" ? DefaultTheme : DarkTheme}
-          >
-            <MySafeAreaView>
-              <Stack
-                screenOptions={{
-                  headerShown: false
-                }}
-              />
-            </MySafeAreaView>
-          </ThemeProvider>
-        </Theme>
-      </Suspense>
-    </TamaguiProvider>
+    <SupabaseProvider>
+      <TamaguiProvider config={config}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Theme name={colorScheme}>
+            <ThemeProvider
+              value={colorScheme === "light" ? DefaultTheme : DarkTheme}
+            >
+              <MySafeAreaView>
+                <Stack
+                  screenOptions={{
+                    headerShown: false
+                  }}
+                />
+              </MySafeAreaView>
+            </ThemeProvider>
+          </Theme>
+        </Suspense>
+      </TamaguiProvider>
+    </SupabaseProvider>
   );
 }
