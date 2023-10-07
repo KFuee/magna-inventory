@@ -27,6 +27,7 @@ export default function Inventory() {
             circular
             icon={QrCode}
             scaleIcon={1.5}
+            onPress={() => router.push("/code-reader")}
           />
           <Button
             circular

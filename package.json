@@ -19,6 +19,7 @@
     "@tamagui/lucide-icons": "^1.74.10",
     "@tamagui/themes": "^1.61.3",
     "expo": "49.0.9",
+    "expo-barcode-scanner": "~12.5.3",
     "expo-constants": "~14.4.2",
     "expo-font": "11.4.0",
     "expo-linear-gradient": "~12.3.0",
