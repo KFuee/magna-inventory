@@ -1,90 +1,70 @@
-import { Github, Twitter } from "@tamagui/lucide-icons";
-import { Link, useRouter } from "expo-router";
-import {
-  Button,
-  H1,
-  ListItem,
-  Paragraph,
-  Separator,
-  YGroup,
-  YStack
-} from "tamagui";
+import { FlatList } from "react-native";
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { Box, ChevronRight, QrCode, Trash, User } from "@tamagui/lucide-icons";
+import { useRouter } from "expo-router";
+import { Button, H3, ListItem, Separator, View, XStack, YStack } from "tamagui";
 
-import { MyStack } from "../components/MyStack";
-
-export default function Home() {
+export default function Inventory() {
   const router = useRouter();
 
   return (
-    <MyStack>
-      <YStack
-        space="$4"
-        maxWidth={600}
+    <YStack
+      flex={1}
+      backgroundColor="$backgroundStrong"
+    >
+      <XStack
+        padding="$4"
+        alignItems="center"
+        justifyContent="space-between"
       >
-        <H1 textAlign="center">Welcome to Tamagui.</H1>
-        <Paragraph textAlign="center">
-          Here&apos;s a basic starter to show navigating from one screen to
-          another.
-        </Paragraph>
-      </YStack>
+        <H3>Inventario</H3>
 
-      <YStack space="$2.5">
-        <Button onPress={() => router.push("/users/testuser")}>
-          Go to user page
-        </Button>
-        <Button onPress={() => router.push("/tabs")}>Go to tabs page</Button>
-      </YStack>
-
-      <YStack space="$5">
-        <YGroup
-          bordered
-          separator={<Separator />}
-          theme="green"
+        <XStack
+          space="$2"
+          alignItems="center"
         >
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://twitter.com/natebirdman"
-              target="_blank"
-            >
-              <ListItem
-                hoverTheme
-                title="Nate"
-                pressTheme
-                icon={Twitter}
-              />
-            </Link>
-          </YGroup.Item>
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://github.com/tamagui/tamagui"
-              target="_blank"
-            >
-              <ListItem
-                hoverTheme
-                pressTheme
-                title="Tamagui"
-                icon={Github}
-              />
-            </Link>
-          </YGroup.Item>
-          <YGroup.Item>
-            <Link
-              asChild
-              href="https://github.com/ivopr/tamagui-expo"
-              target="_blank"
-            >
-              <ListItem
-                hoverTheme
-                pressTheme
-                title="This Template"
-                icon={Github}
-              />
-            </Link>
-          </YGroup.Item>
-        </YGroup>
-      </YStack>
-    </MyStack>
+          <Button
+            circular
+            icon={QrCode}
+            scaleIcon={1.5}
+          />
+          <Button
+            circular
+            icon={User}
+            scaleIcon={1.5}
+            onPress={() => router.push("/users/testuser")}
+          />
+        </XStack>
+      </XStack>
+
+      <FlatList
+        data={[1, 2, 3, 4, 5]}
+        keyExtractor={(item) => item.toString()}
+        renderItem={({ item }) => (
+          <Swipeable
+            renderRightActions={() => (
+              <View
+                width="$6"
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor="$color.red10Dark"
+              >
+                <Trash color="white" />
+              </View>
+            )}
+          >
+            <ListItem
+              hoverTheme
+              pressTheme
+              title={`Item ${item}`}
+              subTitle="Subtitle"
+              icon={Box}
+              iconAfter={ChevronRight}
+            />
+          </Swipeable>
+        )}
+        ItemSeparatorComponent={() => <Separator />}
+      />
+    </YStack>
   );
 }

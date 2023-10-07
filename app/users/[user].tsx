@@ -22,7 +22,7 @@ export default function User() {
           icon={ArrowLeft}
           onPress={router.back}
         />
-        <H3>{params.user}&apos;s user page</H3>
+        <H3>aksdaskjlcajcakskjdajlksldjaljs&apos;s user page</H3>
       </XStack>
 
       <H6>Some Tamagui components in action.</H6>
