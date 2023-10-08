@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { Alert, FlatList } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import {
   Box,
   ChevronRight,
   Filter,
   QrCode,
+  ScanLine,
   Trash,
   User
 } from "@tamagui/lucide-icons";
+import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
 import {
   AnimatePresence,
@@ -21,6 +23,7 @@ import {
   YStack
 } from "tamagui";
 
+import LoadingSpinner from "../components/LoadingSpinner";
 import { useSupabase } from "../lib/context/useSupabase";
 import { Tables } from "../lib/types/database-custom";
 
@@ -28,23 +31,37 @@ export default function Inventory() {
   const router = useRouter();
 
   const { supabase } = useSupabase();
+  const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Tables<"InventoryItems">[]>([]);
 
   const [showButton, setShowButton] = useState(true);
 
   useEffect(() => {
     async function fetchItems() {
-      // Datos obtenidos por orden de creación descendente
-      const { data } = await supabase
-        .from("InventoryItems")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (!data) return;
-      setItems(data);
+      try {
+        setLoading(true);
+        // Datos obtenidos por orden de creación descendente
+        const { data } = await supabase
+          .from("InventoryItems")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        setItems(data);
+        setLoading(false);
+      } catch (error) {
+        Alert.alert(
+          "Error",
+          error instanceof Error ? error.message : "Error desconocido"
+        );
+      }
     }
 
     fetchItems();
   }, []);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <View flex={1}>
@@ -52,7 +69,6 @@ export default function Inventory() {
       <YStack
         zIndex={1}
         backgroundColor="$backgroundStrong"
-        shadowColor="$green10"
         shadowOffset={{ width: 0, height: 4 }}
         shadowOpacity={0.1}
         shadowRadius={8}
@@ -71,7 +87,7 @@ export default function Inventory() {
           >
             <Button
               circular
-              icon={QrCode}
+              icon={ScanLine}
               scaleIcon={1.5}
               onPress={() => router.push("/code-reader")}
             />
@@ -117,7 +133,11 @@ export default function Inventory() {
                 hour: "2-digit",
                 minute: "2-digit"
               })}`}
-              icon={Box}
+              icon={
+                item.code_type == BarCodeScanner.Constants.BarCodeType.qr
+                  ? QrCode
+                  : Box
+              }
               iconAfter={ChevronRight}
             />
           </Swipeable>
@@ -140,7 +160,6 @@ export default function Inventory() {
             circular
             icon={Filter}
             scaleIcon={1.5}
-            onPress={() => router.push("/inventory/add")}
             shadowOffset={{ width: 0, height: 4 }}
             shadowOpacity={0.1}
             shadowRadius={8}

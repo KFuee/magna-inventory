@@ -11,6 +11,7 @@ export default function CodeReader() {
   const router = useRouter();
   const [hasPermission, setHasPermission] = useState(null);
 
+  const [type, setType] = useState<"code128" | "qr">(null);
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(false);
 
@@ -23,7 +24,8 @@ export default function CodeReader() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ data }) => {
+  const handleBarCodeScanned = ({ type, data }) => {
+    setType(type);
     setData(data);
     setOpen(true);
   };
@@ -87,6 +89,7 @@ export default function CodeReader() {
       </View>
 
       <NewInventoryItemSheet
+        type={type}
         data={data}
         open={open}
         setOpen={setOpen}

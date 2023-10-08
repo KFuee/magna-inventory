@@ -17,10 +17,12 @@ const FormSchema = z.object({
 const snapPoints = [75];
 
 export default function NewInventoryItemSheet({
+  type,
   data,
   open,
   setOpen
 }: {
+  type: "code128" | "qr";
   data: string;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -38,7 +40,7 @@ export default function NewInventoryItemSheet({
   } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      container: data,
+      container: "",
       reference: "",
       quantity: "",
       observations: ""
@@ -58,7 +60,8 @@ export default function NewInventoryItemSheet({
           container: data.container,
           reference: data.reference,
           quantity: Number(data.quantity),
-          observations: data.observations
+          observations: data.observations,
+          code_type: type
         }
       ]);
       setOpen(false);
