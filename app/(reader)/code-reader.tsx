@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { ArrowLeft } from "@tamagui/lucide-icons";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
@@ -23,32 +23,37 @@ export default function CodeReader() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    if (
-      type !== BarCodeScanner.Constants.BarCodeType.code128 &&
-      type !== BarCodeScanner.Constants.BarCodeType.qr
-    ) {
-      Alert.alert(
-        "Código no válido",
-        "El código escaneado no es un código de barras o QR válido."
-      );
-      return;
-    }
-
+  const handleBarCodeScanned = ({ data }) => {
     setData(data);
     setOpen(true);
   };
 
   if (hasPermission === null) {
-    return <Text>Solicitando permisos para acceder a la cámara...</Text>;
+    return (
+      <View
+        flex={1}
+        backgroundColor="$gray10"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text>Solicitando permisos para acceder a la cámara...</Text>
+      </View>
+    );
   }
   if (hasPermission === false) {
     return (
-      <Text>
-        No se aceptaron los permisos de la cámara. Por favor, permita el acceso
-        a la cámara desde la configuración de tu dispositivo para poder escanear
-        códigos.
-      </Text>
+      <View
+        flex={1}
+        backgroundColor="$gray10"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Text>
+          No se aceptaron los permisos de la cámara. Por favor, permita el
+          acceso a la cámara desde la configuración de tu dispositivo para poder
+          escanear códigos.
+        </Text>
+      </View>
     );
   }
 
@@ -72,6 +77,10 @@ export default function CodeReader() {
           />
         </XStack>
         <BarCodeScanner
+          barCodeTypes={[
+            BarCodeScanner.Constants.BarCodeType.code128,
+            BarCodeScanner.Constants.BarCodeType.qr
+          ]}
           style={StyleSheet.absoluteFillObject}
           onBarCodeScanned={open ? undefined : handleBarCodeScanned}
         />
