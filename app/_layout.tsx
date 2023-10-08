@@ -5,12 +5,14 @@ import {
   DefaultTheme,
   ThemeProvider
 } from "@react-navigation/native";
+import { ToastProvider } from "@tamagui/toast";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { TamaguiProvider, Theme } from "tamagui";
 
 import LoadingSpinner from "../components/LoadingSpinner";
 import { MySafeAreaView } from "../components/MySafeAreaView";
+import { SafeToastViewport } from "../components/SafeToastViewport";
 import { SupabaseProvider } from "../lib/context/SupabaseProvider";
 import config from "../tamagui.config";
 
@@ -40,13 +42,17 @@ export default function Root() {
             <ThemeProvider
               value={colorScheme === "light" ? DefaultTheme : DarkTheme}
             >
-              <MySafeAreaView>
-                <Stack
-                  screenOptions={{
-                    headerShown: false
-                  }}
-                />
-              </MySafeAreaView>
+              <ToastProvider>
+                <MySafeAreaView>
+                  <SafeToastViewport />
+
+                  <Stack
+                    screenOptions={{
+                      headerShown: false
+                    }}
+                  />
+                </MySafeAreaView>
+              </ToastProvider>
             </ThemeProvider>
           </Theme>
         </Suspense>

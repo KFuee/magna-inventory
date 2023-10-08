@@ -5,6 +5,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
 import { Button, Text, View, XStack } from "tamagui";
 
+import LoadingSpinner from "../../components/LoadingSpinner";
 import NewInventoryItemSheet from "../../components/NewInventoryItemSheet";
 
 export default function CodeReader() {
@@ -31,17 +32,9 @@ export default function CodeReader() {
   };
 
   if (hasPermission === null) {
-    return (
-      <View
-        flex={1}
-        backgroundColor="$gray10"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Text>Solicitando permisos para acceder a la cámara...</Text>
-      </View>
-    );
+    return <LoadingSpinner />;
   }
+
   if (hasPermission === false) {
     return (
       <View

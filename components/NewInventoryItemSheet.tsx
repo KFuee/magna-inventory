@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Keyboard, KeyboardAvoidingView } from "react-native";
+import { Alert, Keyboard } from "react-native";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToastController } from "@tamagui/toast";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { Button, H3, Input, Sheet, TextArea, YStack } from "tamagui";
 import * as z from "zod";
@@ -31,6 +32,8 @@ export default function NewInventoryItemSheet({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+  const toast = useToastController();
+
   const { supabase } = useSupabase();
 
   const setInventoryItems = useInventoryItemStore(
@@ -90,6 +93,11 @@ export default function NewInventoryItemSheet({
       setValue("observations", "");
 
       setOpen(false);
+
+      toast.show("Creación exitosa", {
+        message: "Se ha creado la nueva entrada de inventario.",
+        duration: 5000
+      });
     } catch (error: Error | unknown) {
       Alert.alert(
         "Error",
@@ -103,9 +111,15 @@ export default function NewInventoryItemSheet({
       modal={true}
       forceRemoveScrollEnabled={open}
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(open) => {
+        if (!open) if (Keyboard.isVisible) Keyboard.dismiss();
+
+        setOpen(open);
+      }}
       snapPointsMode="fit"
       dismissOnSnapToBottom
+      dismissOnOverlayPress
+      moveOnKeyboardChange
       zIndex={100_000}
       animation="bouncy"
     >
@@ -115,116 +129,111 @@ export default function NewInventoryItemSheet({
         exitStyle={{ opacity: 0 }}
       />
       <Sheet.Handle />
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{ flex: 1 }}
+      <Sheet.Frame
+        space="$4"
+        padding="$4"
+        justifyContent="space-between"
       >
-        <Sheet.Frame
+        <YStack
           space="$4"
-          padding="$4"
-          justifyContent="space-between"
+          width="100%"
         >
+          <H3>Nueva entrada inventario</H3>
+
           <YStack
-            space="$4"
             width="100%"
+            space="$2"
           >
-            <H3>Nueva entrada inventario</H3>
-
-            <YStack
-              width="100%"
-              space="$2"
-            >
-              <Controller
-                control={control}
-                name="container"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Contenedor"
-                    onChangeText={onChange}
-                    onBlur={() => {
-                      trigger("container");
-                      onBlur();
-                    }}
-                    value={value}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="default"
-                    onKeyPress={({ nativeEvent }) => {
-                      if (nativeEvent.key === "Enter") {
-                        trigger("reference");
-                      }
-                    }}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="reference"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Referencia"
-                    onChangeText={onChange}
-                    onBlur={() => {
+            <Controller
+              control={control}
+              name="container"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  placeholder="Contenedor"
+                  onChangeText={onChange}
+                  onBlur={() => {
+                    trigger("container");
+                    onBlur();
+                  }}
+                  value={value}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="default"
+                  onKeyPress={({ nativeEvent }) => {
+                    if (nativeEvent.key === "Enter") {
                       trigger("reference");
-                      onBlur();
-                    }}
-                    value={value}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="quantity"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    placeholder="Cantidad"
-                    onChangeText={onChange}
-                    onBlur={() => {
-                      trigger("quantity");
-                      onBlur();
-                    }}
-                    value={value}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    keyboardType="numeric"
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="observations"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextArea
-                    placeholder="Observaciones"
-                    onChangeText={onChange}
-                    onBlur={() => {
-                      trigger("observations");
-                      onBlur();
-                    }}
-                    value={value}
-                    autoCapitalize="sentences"
-                    autoCorrect={true}
-                    numberOfLines={3}
-                  />
-                )}
-              />
-            </YStack>
+                    }
+                  }}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="reference"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  placeholder="Referencia"
+                  onChangeText={onChange}
+                  onBlur={() => {
+                    trigger("reference");
+                    onBlur();
+                  }}
+                  value={value}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="quantity"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  placeholder="Cantidad"
+                  onChangeText={onChange}
+                  onBlur={() => {
+                    trigger("quantity");
+                    onBlur();
+                  }}
+                  value={value}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="numeric"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="observations"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextArea
+                  placeholder="Observaciones"
+                  onChangeText={onChange}
+                  onBlur={() => {
+                    trigger("observations");
+                    onBlur();
+                  }}
+                  value={value}
+                  autoCapitalize="sentences"
+                  autoCorrect={true}
+                  numberOfLines={3}
+                />
+              )}
+            />
           </YStack>
+        </YStack>
 
-          <Button
-            width="100%"
-            onPress={() => {
-              Keyboard.dismiss();
-              handleSubmit(onSubmit)();
-            }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Creando..." : "Crear"}
-          </Button>
-        </Sheet.Frame>
-      </KeyboardAvoidingView>
+        <Button
+          width="100%"
+          onPress={() => {
+            Keyboard.dismiss();
+            handleSubmit(onSubmit)();
+          }}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Creando..." : "Crear"}
+        </Button>
+      </Sheet.Frame>
     </Sheet>
   );
 }
