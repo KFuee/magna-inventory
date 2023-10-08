@@ -25,14 +25,17 @@ import {
 
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useSupabase } from "../lib/context/useSupabase";
-import { Tables } from "../lib/types/database-custom";
+import { useInventoryItemStore } from "../lib/state/inventory-item";
 
 export default function Inventory() {
   const router = useRouter();
 
   const { supabase } = useSupabase();
   const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState<Tables<"InventoryItems">[]>([]);
+  const [inventoryItems, setInventoryItems] = useInventoryItemStore((state) => [
+    state.inventoryItems,
+    state.setInventoryItems
+  ]);
 
   const [showButton, setShowButton] = useState(true);
 
@@ -46,7 +49,7 @@ export default function Inventory() {
           .select("*")
           .order("created_at", { ascending: false });
 
-        setItems(data);
+        setInventoryItems(data);
         setLoading(false);
       } catch (error) {
         Alert.alert(
@@ -104,7 +107,7 @@ export default function Inventory() {
       {/* FlatList que se desplaza debajo del encabezado */}
       <FlatList
         style={{ flex: 1 }}
-        data={items}
+        data={inventoryItems}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Swipeable

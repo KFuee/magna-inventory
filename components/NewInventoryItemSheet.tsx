@@ -1,20 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert } from "react-native";
+import { Alert, Keyboard } from "react-native";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BarCodeScanner } from "expo-barcode-scanner";
 import { Button, H3, Input, Sheet, TextArea, YStack } from "tamagui";
 import * as z from "zod";
 
 import { useSupabase } from "../lib/context/useSupabase";
+import { useInventoryItemStore } from "../lib/state/inventory-item";
 
 const FormSchema = z.object({
   container: z.string().min(1, "El contenedor no puede estar vacío."),
   reference: z.string().min(1, "La referencia no puede estar vacía."),
   quantity: z.string().min(1, "La cantidad no puede estar vacía."),
-  observations: z.string().optional()
+  observations: z.string().optional(),
+  codeType: z.union([
+    z.literal(BarCodeScanner.Constants.BarCodeType.qr),
+    z.literal(BarCodeScanner.Constants.BarCodeType.code128)
+  ])
 });
-
-const snapPoints = [75];
 
 export default function NewInventoryItemSheet({
   type,
@@ -29,7 +33,9 @@ export default function NewInventoryItemSheet({
 }) {
   const { supabase } = useSupabase();
 
-  const [position, setPosition] = useState(0);
+  const setInventoryItems = useInventoryItemStore(
+    (state) => state.setInventoryItems
+  );
 
   const {
     setValue,
@@ -48,23 +54,38 @@ export default function NewInventoryItemSheet({
   });
 
   useEffect(() => {
-    if (data) {
+    if (type && data) {
+      setValue("codeType", type);
       setValue("container", data);
     }
-  }, [data]);
+  }, [type, data]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      await supabase.from("InventoryItems").insert([
-        {
-          container: data.container,
-          reference: data.reference,
-          quantity: Number(data.quantity),
-          observations: data.observations,
-          code_type: type
-        }
-      ]);
+      const { data: newInventoryItem } = await supabase
+        .from("InventoryItems")
+        .insert([
+          {
+            container: data.container,
+            reference: data.reference,
+            quantity: Number(data.quantity),
+            observations: data.observations,
+            code_type: data.codeType
+          }
+        ])
+        .select("*")
+        .single();
+
+      if (!newInventoryItem)
+        throw new Error(
+          "No se ha podido crear el nuevo elemento de inventario"
+        );
+
+      setInventoryItems((items) => [newInventoryItem, ...items]);
       setOpen(false);
+
+      // Cierra todos los keyboards abiertos
+      Keyboard.dismiss();
     } catch (error: Error | unknown) {
       Alert.alert(
         "Error",
@@ -79,11 +100,8 @@ export default function NewInventoryItemSheet({
       modal={true}
       open={open}
       onOpenChange={setOpen}
-      snapPoints={snapPoints}
-      snapPointsMode="percent"
+      snapPointsMode="fit"
       dismissOnSnapToBottom
-      position={position}
-      onPositionChange={setPosition}
       zIndex={100_000}
       animation="quick"
     >
