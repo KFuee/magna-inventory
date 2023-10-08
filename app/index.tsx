@@ -154,7 +154,7 @@ export default function Inventory() {
       <AnimatePresence exitBeforeEnter>
         {showButton && (
           <Button
-            animation="bouncy"
+            animation="quick"
             size="$6"
             position="absolute"
             bottom="$0"

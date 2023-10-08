@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Alert, Keyboard } from "react-native";
+import { Alert, Keyboard, KeyboardAvoidingView } from "react-native";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { Button, H3, Input, Sheet, TextArea, YStack } from "tamagui";
@@ -82,10 +82,14 @@ export default function NewInventoryItemSheet({
         );
 
       setInventoryItems((items) => [newInventoryItem, ...items]);
-      setOpen(false);
 
-      // Cierra todos los keyboards abiertos
-      Keyboard.dismiss();
+      // Resetea el formulario
+      setValue("container", "");
+      setValue("reference", "");
+      setValue("quantity", "");
+      setValue("observations", "");
+
+      setOpen(false);
     } catch (error: Error | unknown) {
       Alert.alert(
         "Error",
@@ -96,14 +100,14 @@ export default function NewInventoryItemSheet({
 
   return (
     <Sheet
-      forceRemoveScrollEnabled={open}
       modal={true}
+      forceRemoveScrollEnabled={open}
       open={open}
       onOpenChange={setOpen}
       snapPointsMode="fit"
       dismissOnSnapToBottom
       zIndex={100_000}
-      animation="quick"
+      animation="bouncy"
     >
       <Sheet.Overlay
         animation="lazy"
@@ -111,102 +115,116 @@ export default function NewInventoryItemSheet({
         exitStyle={{ opacity: 0 }}
       />
       <Sheet.Handle />
-      <Sheet.Frame
-        space="$4"
-        padding="$4"
-        justifyContent="space-between"
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={{ flex: 1 }}
       >
-        <YStack
+        <Sheet.Frame
           space="$4"
-          width="100%"
+          padding="$4"
+          justifyContent="space-between"
         >
-          <H3>Nueva entrada inventario</H3>
-
           <YStack
+            space="$4"
             width="100%"
-            space="$2"
           >
-            <Controller
-              control={control}
-              name="container"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Contenedor"
-                  onChangeText={onChange}
-                  onBlur={() => {
-                    trigger("container");
-                    onBlur();
-                  }}
-                  value={value}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="reference"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Referencia"
-                  onChangeText={onChange}
-                  onBlur={() => {
-                    trigger("reference");
-                    onBlur();
-                  }}
-                  value={value}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="quantity"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Cantidad"
-                  onChangeText={onChange}
-                  onBlur={() => {
-                    trigger("quantity");
-                    onBlur();
-                  }}
-                  value={value}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="numeric"
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="observations"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextArea
-                  placeholder="Observaciones"
-                  onChangeText={onChange}
-                  onBlur={() => {
-                    trigger("observations");
-                    onBlur();
-                  }}
-                  value={value}
-                  autoCapitalize="words"
-                  autoCorrect={true}
-                  multiline
-                />
-              )}
-            />
-          </YStack>
-        </YStack>
+            <H3>Nueva entrada inventario</H3>
 
-        <Button
-          width="100%"
-          onPress={handleSubmit(onSubmit)}
-          disabled={isSubmitting}
-        >
-          Añadir
-        </Button>
-      </Sheet.Frame>
+            <YStack
+              width="100%"
+              space="$2"
+            >
+              <Controller
+                control={control}
+                name="container"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Contenedor"
+                    onChangeText={onChange}
+                    onBlur={() => {
+                      trigger("container");
+                      onBlur();
+                    }}
+                    value={value}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="default"
+                    onKeyPress={({ nativeEvent }) => {
+                      if (nativeEvent.key === "Enter") {
+                        trigger("reference");
+                      }
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="reference"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Referencia"
+                    onChangeText={onChange}
+                    onBlur={() => {
+                      trigger("reference");
+                      onBlur();
+                    }}
+                    value={value}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="quantity"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Cantidad"
+                    onChangeText={onChange}
+                    onBlur={() => {
+                      trigger("quantity");
+                      onBlur();
+                    }}
+                    value={value}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    keyboardType="numeric"
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="observations"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextArea
+                    placeholder="Observaciones"
+                    onChangeText={onChange}
+                    onBlur={() => {
+                      trigger("observations");
+                      onBlur();
+                    }}
+                    value={value}
+                    autoCapitalize="sentences"
+                    autoCorrect={true}
+                    numberOfLines={3}
+                  />
+                )}
+              />
+            </YStack>
+          </YStack>
+
+          <Button
+            width="100%"
+            onPress={() => {
+              Keyboard.dismiss();
+              handleSubmit(onSubmit)();
+            }}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creando..." : "Crear"}
+          </Button>
+        </Sheet.Frame>
+      </KeyboardAvoidingView>
     </Sheet>
   );
 }
