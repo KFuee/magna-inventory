@@ -1,6 +1,6 @@
 import "react-native-url-polyfill/auto";
 
-import React from "react";
+import { useEffect, useState } from "react";
 import { createClient, EmailOtpType } from "@supabase/supabase-js";
 import { useRouter, useSegments } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -28,7 +28,7 @@ function useProtectedRoute(isLoggedIn: boolean) {
   const segments = useSegments();
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (
@@ -50,7 +50,7 @@ type SupabaseProviderProps = {
 };
 
 export const SupabaseProvider = (props: SupabaseProviderProps) => {
-  const [isLoggedIn, setLoggedIn] = React.useState<boolean>(false);
+  const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
 
   const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     auth: {
@@ -100,9 +100,8 @@ export const SupabaseProvider = (props: SupabaseProviderProps) => {
     setLoggedIn(result.data.session !== null);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     getSession();
-    console.log("isLoggedIn", isLoggedIn);
   }, [isLoggedIn]);
 
   useProtectedRoute(isLoggedIn);
