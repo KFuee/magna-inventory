@@ -101,7 +101,7 @@ export default function Inventory() {
                 circular
                 icon={User}
                 scaleIcon={1.5}
-                onPress={() => router.push("/users/testuser")}
+                // onPress={() => router.push("/users/testuser")}
               />
             </XStack>
           </XStack>

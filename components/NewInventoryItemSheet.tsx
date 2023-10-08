@@ -27,7 +27,7 @@ export default function NewInventoryItemSheet({
   open,
   setOpen
 }: {
-  type: "code128" | "qr";
+  type: "code128" | "qr" | "";
   data: string;
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -41,6 +41,7 @@ export default function NewInventoryItemSheet({
   );
 
   const {
+    reset,
     setValue,
     control,
     handleSubmit,
@@ -57,10 +58,8 @@ export default function NewInventoryItemSheet({
   });
 
   useEffect(() => {
-    if (type && data) {
-      setValue("codeType", type);
-      setValue("container", data);
-    }
+    setValue("codeType", type);
+    setValue("container", data);
   }, [type, data]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -86,11 +85,14 @@ export default function NewInventoryItemSheet({
 
       setInventoryItems((items) => [newInventoryItem, ...items]);
 
-      // Resetea el formulario
-      setValue("container", "");
-      setValue("reference", "");
-      setValue("quantity", "");
-      setValue("observations", "");
+      // Prevent perdida de valores si se trata de los mismos datos
+      const lastType = data.codeType;
+      const lastContainer = data.container;
+
+      reset();
+
+      setValue("codeType", lastType);
+      setValue("container", lastContainer);
 
       setOpen(false);
 
@@ -111,7 +113,7 @@ export default function NewInventoryItemSheet({
       modal={true}
       forceRemoveScrollEnabled={open}
       open={open}
-      onOpenChange={(open) => {
+      onOpenChange={(open: boolean) => {
         if (!open) if (Keyboard.isVisible) Keyboard.dismiss();
 
         setOpen(open);
