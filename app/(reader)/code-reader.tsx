@@ -72,10 +72,6 @@ export default function CodeReader() {
           />
         </XStack>
         <BarCodeScanner
-          barCodeTypes={[
-            BarCodeScanner.Constants.BarCodeType.code128,
-            BarCodeScanner.Constants.BarCodeType.qr
-          ]}
           style={StyleSheet.absoluteFillObject}
           onBarCodeScanned={open ? undefined : handleBarCodeScanned}
         />
